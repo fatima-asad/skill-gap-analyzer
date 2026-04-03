@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill-Gap Analyzer AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4fa3;
+            --secondary: #ff85c2;
+            --background: #ffe6f2;
+            --surface: rgba(255, 255, 255, 0.7);
+            --text-dark: #4a004f;
+            --text-light: #8e1a69;
+            --border: rgba(255, 153, 204, 0.5);
+            --shadow: rgba(255, 79, 163, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #ffe6f2 0%, #ffcbe6 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Abstract shapes */
+        .shape {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            border-radius: 50%;
+            animation: float 20s infinite alternate;
+        }
+        
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 79, 163, 0.4);
+            top: -100px;
+            right: -100px;
+        }
+        
+        .shape-2 {
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 182, 222, 0.6);
+            bottom: -200px;
+            left: -150px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-50px) scale(1.1); }
+            100% { transform: translateY(0) scale(0.9); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            padding: 2rem;
+            z-index: 10;
+        }
+
+        .glass-card {
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 20px 40px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.8);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(255, 79, 163, 0.2);
+        }
+
+        .cartoon-image {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 6px solid #fff;
+            box-shadow: 0 10px 25px var(--shadow);
+            margin: -80px auto 1rem auto;
+            background: white;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover .cartoon-image {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 133, 194, 0.3);
+            padding: 1.2rem;
+            font-size: 1.1rem;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            resize: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 79, 163, 0.15), inset 0 2px 5px rgba(0,0,0,0.02);
+            background: #fff;
+        }
+
+        textarea::placeholder {
+            color: #d19bb8;
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff2b91 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 100px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(255, 43, 145, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-predict::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(255, 43, 145, 0.4);
+        }
+
+        .btn-predict:hover::before {
+            left: 100%;
+        }
+        
+        .btn-predict:active {
+            transform: translateY(1px);
+        }
+
+        .result-box {
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px dashed var(--secondary);
+            border-radius: 20px;
+            padding: 1.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+            display: none;
+            position: relative;
+        }
+
+        .result-box.show {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+
+    <div class="container">
+        <div class="glass-card">
+            <img src="cartoon_duck.png" alt="Donald Duck AI Assistant" class="cartoon-image" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'180\' height=\'180\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%23fff\'/><text x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\'>🦆</text></svg>'">
+            
+            <h1>Skill-Gap AI</h1>
+            <p class="subtitle">Discover if your skills are in demand and high paying!</p>
+
+            <div class="input-group">
+                <label for="skills">✨ What are your skills?</label>
+                <textarea id="skills" placeholder="e.g. Python, Machine Learning, AWS, Next.js..."></textarea>
+            </div>
+
+            <button class="btn-predict" id="predictBtn" onclick="predict()">
+                <span id="btnText">Analyze Now</span>
+                <div class="spinner" id="spinner"></div>
+            </button>
+
+            <div class="result-box" id="resultBox">
+                <div class="result-label">AI Prediction</div>
+                <div class="result-value" id="resultText">...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function predict() {
+            const btn = document.getElementById("predictBtn");
+            const btnText = document.getElementById("btnText");
+            const spinner = document.getElementById("spinner");
+            const resultBox = document.getElementById("resultBox");
+            const resultText = document.getElementById("resultText");
+            const text = document.getElementById("skills").value.trim();
+            
+            if(!text) {
+                // simple shake animation
+                const textbox = document.getElementById("skills");
+                textbox.style.borderColor = "#ff4fa3";
+                textbox.style.transform = "translateX(-5px)";
+                setTimeout(() => textbox.style.transform = "translateX(5px)", 100);
+                setTimeout(() => textbox.style.transform = "translateX(-5px)", 200);
+                setTimeout(() => textbox.style.transform = "translateX(0)", 300);
+                return;
+            }
+
+            // UI Loading state
+            btnText.style.display = "none";
+            spinner.style.display = "block";
+            btn.disabled = true;
+            resultBox.classList.remove("show");
+
+            try {
+                const res = await fetch("/api/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text })
+                });
+
+                if(!res.ok) {
+                    throw new Error("Server error - Failed to fetch prediction");
+                }
+
+                const data = await res.json();
+                
+                // Format HighDemand_HighPay -> High Demand, High Pay if not already formatted
+                let prediction = data.prediction;
+                
+                resultText.innerText = prediction + " 💖";
+                resultBox.classList.add("show");
+            } catch(e) {
+                console.error(e);
+                resultText.innerText = "Error computing prediction 😢";
+                resultText.style.color = "#d93025";
+                resultBox.classList.add("show");
+            } finally {
+                // Restore loading state
+                btnText.style.display = "block";
+                spinner.style.display = "none";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
